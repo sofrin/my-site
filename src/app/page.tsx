@@ -2,7 +2,6 @@ import {
   NextIcon,
   PostGreSQLIcon,
   ReactIcon,
-  SvelteIcon,
   TypeScriptIcon,
 } from "~/components/icons";
 import { badgeVariants } from "~/components/ui/badge";
