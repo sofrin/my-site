@@ -1,37 +1,160 @@
-import Link from "next/link";
+import {
+  NextIcon,
+  PostGreSQLIcon,
+  ReactIcon,
+  SvelteIcon,
+  TypeScriptIcon,
+} from "~/components/icons";
+import { badgeVariants } from "~/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
+import { getGithubRepoData } from "~/lib/utils";
+import { cn } from "~/lib/utils";
+import { DiscordLogoIcon, StarIcon } from "@radix-ui/react-icons";
+import { Link } from "next-view-transitions";
+import { unstable_noStore as noStore } from "next/cache";
+import { Suspense } from "react";
 
-export default function HomePage() {
+export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/usage/first-steps"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">First Steps →</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
-            </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-            href="https://create.t3.gg/en/introduction"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">Documentation →</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
-            </div>
-          </Link>
-        </div>
+    <section>
+      <div className="space-y-4">
+        <div className="text-muted-foreground text-sm">Sofrin</div>
+        <Intro />
       </div>
-    </main>
+      <div className="my-8 text-lg font-bold">Featured Repositories:</div>
+      <Suspense fallback={<ProjectsFallback />}>
+        <Projects />
+      </Suspense>
+    </section>
+  );
+}
+
+function ProjectsFallback() {
+  return (
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+      {new Array(6).fill(0).map((_, index) => {
+        return <Skeleton className="h-[127.6px] w-full rounded" key={index} />;
+      })}
+    </div>
+  );
+}
+
+async function Projects() {
+  noStore();
+  const repos = await getGithubRepoData();
+  return (
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+      {repos.map(
+        ({ repoUrl, description, name, stars, homePage, ...project }) => (
+          <Link
+            key={name}
+            href={homePage ?? repoUrl ?? "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Card className="bg-secondary text-secondary-foreground h-full border">
+              <CardHeader className="flex-1">
+                <div className="space-y-1">
+                  <CardTitle className="line-clamp-1">{name}</CardTitle>
+                  <CardDescription className="text-foreground/80 line-clamp-2 min-h-[32px] text-xs">
+                    {description ?? "No description provided"}
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-foreground/80 flex space-x-4 text-sm">
+                  <div className="flex items-center">
+                    <div
+                      className="mr-1 size-3 rounded-full bg-sky-400"
+                      aria-hidden
+                    />
+                    {project.language ?? "Unknown"}
+                  </div>
+                  <div className="flex items-center">
+                    <StarIcon className="mr-1 size-3" aria-hidden="true" />
+                    {stars}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ),
+      )}
+    </div>
+  );
+}
+
+function Intro() {
+  return (
+    <>
+      <p className="text-justify leading-relaxed">
+        I&rsquo;m a Software Engineer based in Russia, building full-stack web
+        applications with{" "}
+        <Badge href="https://react.dev/">
+          <ReactIcon className="size-4" />
+          React
+        </Badge>
+        {", "}
+        <Badge href="https://www.typescriptlang.org/">
+          <TypeScriptIcon className="size-4" />
+          TypeScript
+        </Badge>{" "}
+        ,
+        <Badge href="https://neon.tech">
+          <PostGreSQLIcon className="size-4" />
+          PostgreSQL
+        </Badge>
+        {" and "}
+        <Badge href="https://nextjs.org/">
+          <NextIcon className="size-4" /> Nextjs
+        </Badge>
+        . Please feel free to reach out to me via{" "}
+        <Badge href={"https://discord.com/users/216246393243828224"}>
+          <DiscordLogoIcon className="size-4" /> discord
+        </Badge>
+        .
+      </p>
+    </>
+  );
+}
+
+interface BadgeProps extends React.ComponentPropsWithoutRef<typeof Link> {
+  underlined?: boolean;
+}
+
+function Badge({
+  target = "_blank",
+  rel = "noopener noreferrer",
+  href,
+  className,
+  children,
+  underlined = false,
+  ...props
+}: BadgeProps) {
+  return (
+    <Link
+      {...props}
+      className={cn(
+        badgeVariants({
+          variant: "secondary",
+          className: "border-border rounded-md border px-1",
+        }),
+        "gap-2",
+        className,
+        underlined && "decoration-border underline underline-offset-4",
+      )}
+      href={href}
+      rel={rel}
+      target={target}
+    >
+      {children}
+    </Link>
   );
 }
