@@ -6,7 +6,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 import { Navbar } from "~/components/navbar";
 import { ModeToggle } from "~/components/theme-toggle";
-
+import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
   title: "Sofrin.ru",
   description: "My personal site",
@@ -30,6 +30,7 @@ export default function RootLayout({
           </div>
           <ModeToggle className="fixed bottom-4 right-4 rounded-lg bg-transparent" />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
